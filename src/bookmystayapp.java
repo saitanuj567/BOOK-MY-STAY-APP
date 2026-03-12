@@ -1,54 +1,103 @@
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 
-class RoomSearch {
+/*
+============================================================
+CLASS – Reservation
+============================================================
+Description:
+This class represents a booking request made by a guest.
+At this stage, a reservation only captures intent.
+*/
 
-    public void searchAvailableRooms(
-            RoomInventory inventory,
-            Room singleRoom,
-            Room doubleRoom,
-            Room suiteRoom) {
+class Reservation {
 
-        Map<String, Integer> availability = inventory.getRoomAvailability();
+    private String guestName;
+    private String roomType;
 
-        // Check Single Room
-        if (availability.get("Single") > 0) {
-            System.out.println("Single Room:");
-            singleRoom.displayRoomDetails();
-            System.out.println("Available: " + availability.get("Single"));
-            System.out.println();
-        }
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
+    }
 
-        // Check Double Room
-        if (availability.get("Double") > 0) {
-            System.out.println("Double Room:");
-            doubleRoom.displayRoomDetails();
-            System.out.println("Available: " + availability.get("Double"));
-            System.out.println();
-        }
+    public String getGuestName() {
+        return guestName;
+    }
 
-        // Check Suite Room
-        if (availability.get("Suite") > 0) {
-            System.out.println("Suite Room:");
-            suiteRoom.displayRoomDetails();
-            System.out.println("Available: " + availability.get("Suite"));
-        }
+    public String getRoomType() {
+        return roomType;
     }
 }
 
-public class bookmystayapp {
+
+/*
+============================================================
+CLASS – BookingRequestQueue
+============================================================
+Description:
+This class manages booking requests using FIFO Queue.
+Requests are processed in the order received.
+*/
+
+class BookingRequestQueue {
+
+    private Queue<Reservation> requestQueue;
+
+    public BookingRequestQueue() {
+        requestQueue = new LinkedList<>();
+    }
+
+    public void addRequest(Reservation reservation) {
+        requestQueue.offer(reservation);
+    }
+
+    public Reservation processRequest() {
+        return requestQueue.poll();
+    }
+
+    public boolean hasPendingRequests() {
+        return !requestQueue.isEmpty();
+    }
+}
+
+
+/*
+============================================================
+MAIN CLASS – UseCase5BookingRequestQueue
+============================================================
+*/
+
+public class bookmystayapp{
 
     public static void main(String[] args) {
 
-        System.out.println("Room Search\n");
+        // Display header
+        System.out.println("Booking Request Queue");
 
-        RoomInventory inventory = new RoomInventory();
+        // Create queue
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        Room single = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suite = new SuiteRoom();
+        // Create booking requests
+        Reservation r1 = new Reservation("Abhi", "Single");
+        Reservation r2 = new Reservation("Subha", "Double");
+        Reservation r3 = new Reservation("Vanmathi", "Suite");
 
-        RoomSearch search = new RoomSearch();
+        // Add to queue
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-        search.searchAvailableRooms(inventory, single, doubleRoom, suite);
+        // Process queue (FIFO)
+        while (bookingQueue.hasPendingRequests()) {
+
+            Reservation r = bookingQueue.processRequest();
+
+            System.out.println(
+                    "Processing booking for Guest: "
+                            + r.getGuestName()
+                            + ", Room Type: "
+                            + r.getRoomType()
+            );
+        }
     }
 }
